@@ -1,5 +1,6 @@
 # Report
-
+16340164
+吕雪萌
 ## 运行效果
 ![](https://github.com/lvxm0/CG_homework/blob/master/HW6/doc/hw6_1.gif)
 
@@ -13,7 +14,7 @@
 - 根据顶点法向量对内部的点进行法向量的线性差值 
 - 对每个像素应用phong lighting model, 计算顶点光亮度
 
-## 改变参数
+## 调整参数
 
 - ambient
 环境光系数，数值越高，物体整体越亮
@@ -23,3 +24,5 @@
 镜面反射系数，数值对物体明暗影响不太大
 - shininess
 数值越大，高光面积越小
+
+## 实现思路
