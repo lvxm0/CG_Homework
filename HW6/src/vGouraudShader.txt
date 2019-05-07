@@ -1,7 +1,7 @@
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
-out vec4 LightColor2;
+out vec4 outLightColor;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
@@ -26,5 +26,5 @@ void main()
     vec3 diffuse = diffuseStrength * diff * lightColor;
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininessStrength);
     vec3 specular = specularStrength * spec * lightColor;     
-    LightColor2 = vec4((ambient + diffuse + specular) * objectColor, 1.0);
+    outLightColor = vec4((ambient + diffuse + specular) * objectColor, 1.0);
 }
