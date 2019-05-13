@@ -49,7 +49,7 @@
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   ```
-  把我们把生成的深度纹理作为帧缓冲的深度缓冲：
+  把我们把生成的深度纹理作为帧缓冲的深度缓冲：(深度缓冲中的深度值都是离观察点“最近”的深度)
   ```
     // texture binds with FBO
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -58,4 +58,34 @@
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
   ```
-- 光源空间的变换
+- 渲染深度贴图
+  
+
+  变换到光源视角需要两个变换矩阵，一个是光源坐标系下的View矩阵，通过lookAt来生成,另一个是光源视角下的投影矩阵，与普通的投影矩阵相同，可以使用正交和透视两种。
+  ```
+  if (radio == 0) {
+        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+      }
+      else {
+        lightProjection = glm::perspective(glm::radians(45.0f), 1.0f, near_plane, far_plane);
+      }
+  lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+  ```
+  变换矩阵通过两个矩阵相乘得到，传入渲染深度贴图的着色器中用于顶点坐标变换：
+  ```
+  lightSpaceMatrix = lightProjection * lightView;
+  ```
+  深度贴图的渲染着色器depthShader实现
+  ```
+  #version 330 core
+  layout (location = 0) in vec3 aPos;
+
+  uniform mat4 model;
+  uniform mat4 lightSpaceMatrix;
+
+  void main() { gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0); }
+  ```
+  ```
+  #version 330 core
+  void main(){}
+  ```
