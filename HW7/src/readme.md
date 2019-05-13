@@ -1,1 +1,2 @@
-camera.hpp的源码是learnOpenGL的camera.hpp的源码
+- camera.hpp的源码是learnOpenGL的camera.hpp的源码
+- exe文件要和txt文件放在一个文件夹下才能正常运行
