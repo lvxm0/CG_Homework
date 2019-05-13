@@ -27,3 +27,35 @@
 我们使用深度缓冲来代替射线，从光源的透视图来渲染场景，并把深度值的结果储存到纹理中，对光源的透视图所见的最近的深度值进行采样，最后通过跟深度纹理中的深度值进行比较，可以迅速在渲染物体表面时确定该片元是否在阴影中。
 
 ### Shadow Mapping 实现
+
+- 创建深度贴图
+  深度贴图是从光的透视图里渲染的深度纹理，用它计算阴影。因为我们需要将场景的渲染结果储存到一个纹理中，我们将再次需要帧缓冲。
+
+  首先，我们要为渲染的深度贴图创建一个帧缓冲对象：
+  ```
+  //create depth map FBO
+    unsigned int depthMapFBO;
+    glGenFramebuffers(1, &depthMapFBO);
+  ```
+  然后，创建一个2D纹理，提供给帧缓冲的深度缓冲使用：
+  ```
+    // create depth texture
+    unsigned int depthMap;
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 8192, 8192, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  ```
+  把我们把生成的深度纹理作为帧缓冲的深度缓冲：
+  ```
+    // texture binds with FBO
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  ```
+- 光源空间的变换
