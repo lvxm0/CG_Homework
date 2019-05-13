@@ -13,7 +13,6 @@
 ![](https://github.com/lvxm0/CG_homework/blob/master/HW7/doc/2.PNG)
 - 更改正交投影的远近
 ![](https://github.com/lvxm0/CG_homework/blob/master/HW7/doc/3.PNG)
-- 透视投影
 
 ## shadowing Mapping
 
