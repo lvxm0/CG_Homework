@@ -24,7 +24,6 @@ float vertices[100];
 int curvePointCount = 1000;
 //animation time
 float time = 0;
-int checkpoint = 0;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -32,8 +31,6 @@ void cursor_pos_callback(GLFWwindow* window, double x, double y);
 void click_callback(GLFWwindow* window, int button, int action, int mods);
 long int jiecheng(int x);
 float* Bezier(vector<glm::vec2> point);
-
-
 void animation(vector<glm::vec2> vertex);
 
 int main() {
@@ -116,9 +113,8 @@ int main() {
 		// draw arr  1000  point 
 		glPointSize(1.0f);
 		glDrawArrays(GL_POINTS, 0, curvePointCount);
-		// ¶¯Ì¬³ÊÏÖĞ§¹û
+		// åŠ¨æ€å‘ˆç°æ•ˆæœ
 		if (point.size() >= 3) {
-			checkpoint++;
 			animation(point);
 			time += 0.001;
 			if (time > 1) {
@@ -155,35 +151,7 @@ void cursor_pos_callback(GLFWwindow* window, double x, double y) {
 	PosX = (x - WINDOW_WIDTH / 2) / (WINDOW_WIDTH / 2);
 	PosY = ((WINDOW_HEIGHT - y) - WINDOW_HEIGHT / 2) / (WINDOW_HEIGHT / 2);
 }
-
-void click_callback(GLFWwindow* window, int button, int action, int mods) {
-	// ¼àÌı×ó¼üµã»÷ÊÂ¼ş
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-		checkpoint = 0;
-		int flag = 0;
-		for (int i = 0; i < point.size(); i++) {
-			if (point[i].x == PosX && point[i].y == PosY) {
-				flag = 1;
-			}
-		}
-		if (flag == 0 && point.size() < 20) {
-			point.push_back(glm::vec2(PosX, PosY));
-		}
-	}
-	// ¼àÌıÓÒ¼üµã»÷ÊÂ¼ş
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-		checkpoint = 0;
-		vector<glm::vec2>::iterator iter;
-		for (iter = point.begin(); iter != point.end(); iter++) {
-			if (pow(iter->x - PosX, 2) + pow(iter->y - PosY, 2) <= 0.1*0.1) {
-				point.erase(iter);
-				break;
-			}
-		}
-	}
-}
-
-// ½×³Ë
+// é˜¶ä¹˜
 long int jiecheng(int x) {
 	if (x == 0) return 1;
 	int result = 1;
@@ -193,18 +161,18 @@ long int jiecheng(int x) {
 	return result;
 }
 
-//bezier curve ¹«Ê½
+//bezier curve å…¬å¼
 float* Bezier(vector<glm::vec2> point) {
-	//beizer curve µã¸öÊı
+	//beizer curve ç‚¹ä¸ªæ•°
 	int num = 0;
-	//beizer curve µã×ø±ê
+	//beizer curve ç‚¹åæ ‡
 	float* bezierCurve = new float[10000];
 	for (float t = 0; t < 1; t += 0.001, num++) {
-		// x,y ×ø±ê = 0
+		// x,y åæ ‡ = 0
 		bezierCurve[num * 2] = 0;
 		bezierCurve[num * 2 + 1] = 0;
 		for (int i = 0, n = point.size() - 1; i <= n; i++) {
-			// ³£Êı²¿·Ö C=n!/i!(n-i)!
+			// å¸¸æ•°éƒ¨åˆ† C=n!/i!(n-i)!
 			float C = jiecheng(n) / (jiecheng(i) * jiecheng(n - i));
 			//X
 			bezierCurve[num * 2] += C * point[i].x  * pow(1 - t, n - i) * pow(t, i);
@@ -217,7 +185,7 @@ float* Bezier(vector<glm::vec2> point) {
 	return bezierCurve;
 }
 
-// ¶¯Ì¬³ÊÏÖ
+// åŠ¨æ€å‘ˆç°
 void animation(vector<glm::vec2> vertex) {
 	float animationVertex[10000];
 	int n = vertex.size();
@@ -249,4 +217,28 @@ void animation(vector<glm::vec2> vertex) {
 	glDrawArrays(GL_LINE_STRIP, 0, next.size());
 
 	animation(next);
+}
+void click_callback(GLFWwindow* window, int button, int action, int mods) {
+	// å·¦é”®æ·»åŠ é¡¶ç‚¹
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+		bool flag = true;
+		for (int i = 0; i < point.size(); i++) {
+			if (point[i].x == PosX && point[i].y == PosY) {
+				flag = false;
+			}
+		}
+		if (flag) {
+			point.push_back(glm::vec2(PosX, PosY));
+		}
+	}
+	// å³é”®åˆ é™¤é¡¶ç‚¹
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+		vector<glm::vec2>::iterator iter;
+		for (iter = point.begin(); iter != point.end(); iter++) {
+			if (pow(iter->x - PosX, 2) + pow(iter->y - PosY, 2) <= 0.1*0.1) {
+				point.erase(iter);
+				break;
+			}
+		}
+	}
 }
