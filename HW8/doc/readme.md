@@ -1,7 +1,7 @@
 # HW8 Report
 16340164 吕雪萌
 ## 实现效果
-
+![](https://github.com/lvxm0/CG_homework/blob/master/HW8/doc/hw9.gif)
 ## Beizer 曲线定义
 
 贝塞尔曲线 Bézier curve 是计算机图形学中相当重要的参数曲线。 更高维度的广泛化贝塞尔曲线就称作贝兹曲面，其中贝兹三角是一种特殊的实例。
