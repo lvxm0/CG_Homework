@@ -22,7 +22,8 @@ vector<glm::vec2> point;
 float vertices[100];
 // surpose 1000 point
 int curvePointCount = 1000;
-float animation = 0;
+//animation time
+float time = 0;
 int checkpoint = 0;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -33,46 +34,7 @@ long int jiecheng(int x);
 float* Bezier(vector<glm::vec2> point);
 
 
-void transform(vector<glm::vec2> vertex) {
-	float transformVertex[1000];
-	int n = vertex.size();
-	if (n == 1) return;
-
-	vector<glm::vec2> nextVertexs = vector<glm::vec2>();
-	for (int i = 0; i < n - 1; i++) {
-		float tx = (1 - animation) * vertex[i].x + animation * vertex[i + 1].x;
-		float ty = (1 - animation) * vertex[i].y + animation * vertex[i + 1].y;
-		glm::vec2 nextVertex = glm::vec2(tx, ty);
-		transformVertex[i * 2] = tx;
-		transformVertex[i * 2 + 1] = ty;
-		nextVertexs.push_back(nextVertex);
-	}
-
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(float) * nextVertexs.size(), transformVertex, GL_STATIC_DRAW);
-
-	unsigned int VAO;
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glPointSize(10.0f);
-	glDrawArrays(GL_POINTS, 0, nextVertexs.size());
-
-	glPointSize(1.0f);
-	glDrawArrays(GL_LINE_STRIP, 0, nextVertexs.size());
-
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-
-	transform(nextVertexs);
-}
+void animation(vector<glm::vec2> vertex);
 
 int main() {
 	glfwInit();
@@ -157,9 +119,12 @@ int main() {
 		// 动态呈现效果
 		if (point.size() >= 3) {
 			checkpoint++;
-			transform(point);
-			animation += 0.001;
-			animation = animation > 1 ? 1 : animation;
+			animation(point);
+			time += 0.001;
+			if (time > 1) {
+				Sleep(1000);
+				time = 0;
+			}
 
 		}
 		
@@ -252,3 +217,36 @@ float* Bezier(vector<glm::vec2> point) {
 	return bezierCurve;
 }
 
+// 动态呈现
+void animation(vector<glm::vec2> vertex) {
+	float animationVertex[10000];
+	int n = vertex.size();
+	if (n == 1) return;
+
+	vector<glm::vec2> next = vector<glm::vec2>();
+	for (int i = 0; i < n - 1; i++) {
+		float tempx = (1 - time) * vertex[i].x + time * vertex[i + 1].x;
+		float tempy = (1 - time) * vertex[i].y + time * vertex[i + 1].y;
+		glm::vec2 temp = glm::vec2(tempx, tempy);
+		 animationVertex[i * 2] = tempx;
+		 animationVertex[i * 2 + 1] = tempy;
+		next.push_back(temp);
+	}
+	
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(float) * next.size(),  animationVertex, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glPointSize(10.0f);
+	glDrawArrays(GL_POINTS, 0, next.size());
+
+	glPointSize(1.0f);
+	glDrawArrays(GL_LINE_STRIP, 0, next.size());
+
+	animation(next);
+}
